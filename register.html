@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>注册</title>
+</head>
+<body>
+<form>
+    <input type="text" id="userName">
+    <input type="password" id="password">
+    <input type="button" value="注册" id="doRegister">
+</form>
+</body>
+<script src="./js/jquery-3.4.1.min.js"></script>
+<script>
+    var requestBody = {"userName":null, "password":null};
+    $('#doRegister').click( function () {
+        requestBody.userName = $('#userName').val();
+        requestBody.password = $('#password').val();
+        console.log(requestBody);
+        $.ajax({
+            type: "post",
+            url: "http://localhost:5050/apis/home/register",
+            dataType: "json",
+            contentType: "application/json",
+            data: JSON.stringify(requestBody),
+            success: function (jsonmsg) {
+                if (jsonmsg.code == 200) {
+                    // localStorage.setItem("token", jsonmsg.data.token);
+                    // localStorage.setItem("uid", jsonmsg.data.uId);
+                    document.location.href = "./login.html";
+                } else {
+                    alert(jsonmsg.data);
+                    console.log(jsonmsg.code + "  " + jsonmsg.data);
+                }
+            }
+        });
+    })
+</script>
+</html>
