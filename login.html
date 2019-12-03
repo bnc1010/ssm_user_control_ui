@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>登录</title>
+</head>
+<body>
+<form>
+    <input type="text" id="userName">
+    <input type="password" id="password">
+    <input type="button" value="登录" id="doLogin">
+</form>
+</body>
+
+<script src="./js/jquery-3.4.1.min.js"></script>
+<script>
+    var requestBody = {"userName":null, "password":null};
+    $('#doLogin').click( function doLogin() {
+        requestBody.userName = $('#userName').val();
+        requestBody.password = $('#password').val();
+        console.log(requestBody);
+        $.ajax({
+            type: "post",
+            url: "http://localhost:5050/apis/home/login",
+            dataType: "json",
+            contentType: "application/json",
+            data: JSON.stringify(requestBody),
+            success: function (jsonmsg) {
+                if (jsonmsg.code == 200) {
+                    localStorage.setItem("token", jsonmsg.data.token);
+                    localStorage.setItem("uid", jsonmsg.data.uId);
+                    document.location.href = "./home.html";
+                } else {
+                    alert(jsonmsg.msg);
+                    console.log(jsonmsg.code + "  " + jsonmsg.msg);
+                }
+            }
+        });
+    })
+</script>
+</html>

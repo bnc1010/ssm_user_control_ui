@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>主页</title>
+</head>
+<body>
+
+<p>这是主页</p>
+<p>...</p>
+
+<a href="admin.html">管理主页</a>
+<button id="doLogout" onclick="doLogout()">退出</button>
+
+
+</body>
+<script src="./js/jquery-3.4.1.min.js"></script>
+<script>
+    var requestBody = {};
+
+
+    function doLogout() {
+        requestBody["uId"] = localStorage.getItem("uid");
+        $.ajax({
+            type: "post",
+            headers: {
+                'Access-Token': localStorage.getItem("token")
+            },
+            url: "http://localhost:5050/apis/home/logout",
+            dataType: "json",
+            contentType: "application/json",
+            data: JSON.stringify(requestBody),
+            success: function (jsonmsg) {
+                if (jsonmsg.code == 200) {
+                    document.location.href='./login.html';
+                }
+            },
+            error: function (jsonmsg) {
+                console.log(jsonmsg);
+                if (jsonmsg.responseJSON.code == 403) {
+                    document.location.href = './403.html';
+                } else if (jsonmsg.responseJSON.code == 401) {
+                    document.location.href = './login.html';
+                } else {
+                    alert(jsonmsg.responseJSON.msg);
+                }
+            }
+        })
+    }
+</script>
+
+</html>
