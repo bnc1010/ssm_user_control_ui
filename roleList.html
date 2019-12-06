@@ -5,50 +5,46 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 
-    <title>User-Manage</title>
+    <title>role</title>
 
     <link rel="stylesheet" type="text/css" href="./dist/semantic.css">
 
 </head>
 <body id="home">
 <table class="ui celled striped table">
-    <thead><tr><th colspan="4">用户列表</th></tr></thead>
-    <tbody id="user-append"></tbody>
+    <thead><tr><th colspan="4">角色列表</th></tr></thead>
+    <tbody id="role-append"></tbody>
 </table>
 </body>
 <script src="./js/jquery-3.4.1.min.js"></script>
 <script src="./dist/semantic.js"></script>
 
 <script>
-    var requestBody = {
-        "pageNum": 1,
-        "pageSize": 10
-    };
-    var user_list = $('#user-append');
+    var requestBody = {"token":localStorage.getItem("token")};
+    var role_list = $('#role-append');
 
     $.ajax({
         type: "post",
         headers: {
             'Access-Token': localStorage.getItem("token")
         },
-        url: "http://localhost:5050/apis/users/all",
+        url: "http://localhost:5050/apis/system/role/all",
         dataType: "json",
         contentType: "application/json",
         data: JSON.stringify(requestBody),
         success: function (jsonmsg) {
             if (jsonmsg.code == 200) {
-                var users = jsonmsg.data;
+                var roles = jsonmsg.data;
                 var ss = "";
-                for (var id in users){
+                for (var id in roles){
                     ss +=
                         '<tr>\n' +
-                        '<td>' + users[id].uId + '</td>' +
-                        '<td>' + users[id].userName + '</td>' +
-                        '<td>' + users[id].birthday + '</td>' +
-                        '<td class=\"right aligned collapsing\">' + (users[id].sex==null?"null":(users[id].sex==1?"男":"女")) + '</td>' +
+                        '<td>' + roles[id].rId + '</td>' +
+                        '<td>' + roles[id].roleName + '</td>' +
+                        '<td class=\"right aligned collapsing\">' + roles[id].rtype +'</td>' +
                         '</tr>';
                 }
-                user_list.html(ss);
+                role_list.html(ss);
             }
         },
         error: function (jsonmsg) {

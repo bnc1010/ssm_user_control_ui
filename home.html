@@ -32,6 +32,7 @@
             data: JSON.stringify(requestBody),
             success: function (jsonmsg) {
                 if (jsonmsg.code == 200) {
+                    localStorage.clear();
                     document.location.href='./login.html';
                 }
             },

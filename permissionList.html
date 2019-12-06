@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+    <title>role</title>
+
+    <link rel="stylesheet" type="text/css" href="./dist/semantic.css">
+    <style>
+        #box1,#box2{
+            visibility: hidden;
+        }
+    </style>
+</head>
+<body id="home">
+<table class="ui celled striped table">
+    <thead><tr><th colspan="4">权限列表</th></tr></thead>
+    <tbody id="permission-append"></tbody>
+</table>
+<button onclick="showbox(1)">添加权限</button>
+<button onclick="showbox(2)">删除权限</button>
+
+
+<div class="ui fluid form segment" id="box1">
+    <div class="three fields">
+        <div class="field">
+            <label>pName:</label>
+            <input id="pName" placeholder="pName:" type="text">
+        </div>
+        <div class="field">
+            <label>pUrl:</label>
+            <input id="pUrl" placeholder="pUrl:" type="text">
+        </div>
+        <div class="field">
+            <label>pType:</label>
+            <input id="pType" placeholder="pType:" type="text">
+        </div>
+    </div>
+    <div class="ui submit button" onclick="addPermission()">Submit</div>
+</div>
+<div class="ui fluid form segment" id="box2">
+    <div class="one fields">
+        <div class="field">
+            <label>pId:</label>
+            <input id="pId" placeholder="pId:" type="text">
+        </div>
+    </div>
+    <div class="ui submit button" onclick="deletePermission()">Submit</div>
+</div>
+
+</body>
+<script src="./js/jquery-3.4.1.min.js"></script>
+<script src="./dist/semantic.js"></script>
+
+<script>
+    var requestBody = {"token":localStorage.getItem("token")};
+    var permission_list = $('#permission-append');
+
+    $.ajax({
+        type: "post",
+        headers: {
+            'Access-Token': localStorage.getItem("token")
+        },
+        url: "http://localhost:5050/apis/system/permission/all",
+        dataType: "json",
+        contentType: "application/json",
+        data: JSON.stringify(requestBody),
+        success: function (jsonmsg) {
+            if (jsonmsg.code == 200) {
+                var permissions = jsonmsg.data;
+                var ss = "";
+                for (var id in permissions){
+                    ss +=
+                        '<tr>\n' +
+                        '<td>' + permissions[id].pId + '</td>' +
+                        '<td>' + permissions[id].pName + '</td>' +
+                        '<td>' + permissions[id].pUrl + '</td>' +
+                        '<td class=\"right aligned collapsing\">' + permissions[id].pType +'</td>' +
+                        '</tr>';
+                }
+                permission_list.html(ss);
+            }
+        },
+        error: function (jsonmsg) {
+            console.log(jsonmsg);
+            if (jsonmsg.responseJSON.code == 403){
+                document.location.href = './403.html';
+            }
+            else if (jsonmsg.responseJSON.code == 401){
+                document.location.href = './login.html';
+            }
+            else{
+                alert(jsonmsg.responseJSON.msg);
+            }
+        }
+    });
+
+    function showbox(id) {
+        var fid = '#box' + id;
+        $(fid).css("visibility", "visible")
+    }
+    function addPermission() {
+        var pName = $('#pName').val();
+        var pUrl = $('#pUrl').val();
+        var pType = $('#pType').val();
+        var requestBody = {"token":localStorage.getItem("token"), "pName":pName,"pUrl":pUrl,"pType":pType};
+        $.ajax({
+            type: "post",
+            headers: {
+                'Access-Token': localStorage.getItem("token")
+            },
+            url: "http://localhost:5050/apis/system/permission/add",
+            dataType: "json",
+            contentType: "application/json",
+            data: JSON.stringify(requestBody),
+            success: function (jsonmsg) {
+                if (jsonmsg.code == 200) {
+                    var token = jsonmsg.data;
+                    localStorage.setItem("token", token);
+                    document.location.reload();
+                }
+                else{
+                    alert(jsonmsg.msg)
+                }
+            },
+            error: function (jsonmsg) {
+                console.log(jsonmsg);
+                if (jsonmsg.responseJSON.code == 403){
+                    document.location.href = './403.html';
+                }
+                else if (jsonmsg.responseJSON.code == 401){
+                    document.location.href = './login.html';
+                }
+                else{
+                    alert(jsonmsg.responseJSON.msg);
+                }
+            }
+        });
+    }
+    function deletePermission() {
+        var pId = $('#pId').val();
+        var requestBody = {"token":localStorage.getItem("token"), "pId":pId};
+        $.ajax({
+            type: "post",
+            headers: {
+                'Access-Token': localStorage.getItem("token")
+            },
+            url: "http://localhost:5050/apis/system/permission/delete",
+            dataType: "json",
+            contentType: "application/json",
+            data: JSON.stringify(requestBody),
+            success: function (jsonmsg) {
+                if (jsonmsg.code == 200) {
+                    document.location.reload();
+                }
+                else{
+                    alert(jsonmsg.msg);
+                }
+            },
+            error: function (jsonmsg) {
+                console.log(jsonmsg);
+                if (jsonmsg.responseJSON.code == 403){
+                    document.location.href = './403.html';
+                }
+                else if (jsonmsg.responseJSON.code == 401){
+                    document.location.href = './login.html';
+                }
+                else{
+                    alert(jsonmsg.responseJSON.msg);
+                }
+            }
+        });
+    }
+</script>
+</html>
