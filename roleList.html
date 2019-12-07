@@ -8,13 +8,73 @@
     <title>role</title>
 
     <link rel="stylesheet" type="text/css" href="./dist/semantic.css">
-
+    <style>
+        #box1,#box2,#box3,#box4{
+            visibility: hidden;
+        }
+    </style>
 </head>
 <body id="home">
 <table class="ui celled striped table">
     <thead><tr><th colspan="4">角色列表</th></tr></thead>
     <tbody id="role-append"></tbody>
 </table>
+<button onclick="showbox(1)">添加角色</button>
+<button onclick="showbox(2)">删除角色</button>
+<button onclick="showbox(3)">赋权限</button>
+<button onclick="showbox(4)">去权限</button>
+<div class="ui fluid form segment" id="box1">
+    <div class="four fields">
+        <div class="field">
+            <label>rName:</label>
+            <input id="rName" placeholder="rName:" type="text">
+        </div>
+        <div class="field">
+            <label>rType:</label>
+            <input id="rType" placeholder="rType:" type="text">
+        </div>
+        <div class="field">
+            <label>rRank:</label>
+            <input id="rRank" placeholder="rRank:" type="text">
+        </div>
+    </div>
+    <div class="ui submit button" onclick="addRole()">Submit</div>
+</div>
+<div class="ui fluid form segment" id="box2">
+    <div class="one field">
+        <div class="field">
+            <label>rId:</label>
+            <input id="rId" placeholder="rId:" type="text">
+        </div>
+    </div>
+    <div class="ui submit button" onclick="deleteRole()">Submit</div>
+</div>
+<div class="ui fluid form segment" id="box3">
+    <div class="two fields">
+        <div class="field">
+            <label>rId:</label>
+            <input id="rId2" placeholder="rId:" type="text">
+        </div>
+        <div class="field">
+            <label>pCode:</label>
+            <input id="pCode" placeholder="pCode:" type="text">
+        </div>
+    </div>
+    <div class="ui submit button" onclick="grantPermission()">Submit</div>
+</div>
+<div class="ui fluid form segment" id="box4">
+    <div class="two fields">
+        <div class="field">
+            <label>rId:</label>
+            <input id="rId4" placeholder="rId:" type="text">
+        </div>
+        <div class="field">
+            <label>pCode:</label>
+            <input id="pCode4" placeholder="pCode:" type="text">
+        </div>
+    </div>
+    <div class="ui submit button" onclick="dropPermission()">Submit</div>
+</div>
 </body>
 <script src="./js/jquery-3.4.1.min.js"></script>
 <script src="./dist/semantic.js"></script>
@@ -34,12 +94,20 @@
         data: JSON.stringify(requestBody),
         success: function (jsonmsg) {
             if (jsonmsg.code == 200) {
+                console.log(localStorage.getItem("permission"));
                 var roles = jsonmsg.data;
-                var ss = "";
+                var ss =
+                    '<tr>\n' +
+                    '<td>id</td>' +
+                    '<td>角色级别</td>' +
+                    '<td>角色名</td>' +
+                    '<td class=\"right aligned collapsing\">角色类型</td>' +
+                    '</tr>';
                 for (var id in roles){
                     ss +=
                         '<tr>\n' +
                         '<td>' + roles[id].rId + '</td>' +
+                        '<td>' + roles[id].rRank + '</td>' +
                         '<td>' + roles[id].roleName + '</td>' +
                         '<td class=\"right aligned collapsing\">' + roles[id].rtype +'</td>' +
                         '</tr>';
@@ -60,5 +128,151 @@
             }
         }
     });
+
+    function showbox(id) {
+        var fid = '#box' + id;
+        $(fid).css("visibility", "visible")
+    }
+
+    function addRole() {
+        var rName = $('#rName').val();
+        var rType = $('#rType').val();
+        var rRank = $('#rRank').val();
+        var requestBody = {"token":localStorage.getItem("token"), "roleName":rName,"rType":rType,"rRank":rRank};
+        $.ajax({
+            type: "post",
+            headers: {
+                'Access-Token': localStorage.getItem("token")
+            },
+            url: "http://localhost:5050/apis/system/role/add",
+            dataType: "json",
+            contentType: "application/json",
+            data: JSON.stringify(requestBody),
+            success: function (jsonmsg) {
+                if (jsonmsg.code == 200) {
+                    document.location.reload();
+                }
+                else{
+                    alert(jsonmsg.msg)
+                }
+            },
+            error: function (jsonmsg) {
+                console.log(jsonmsg);
+                if (jsonmsg.responseJSON.code == 403){
+                    document.location.href = './403.html';
+                }
+                else if (jsonmsg.responseJSON.code == 401){
+                    document.location.href = './login.html';
+                }
+                else{
+                    alert(jsonmsg.responseJSON.msg);
+                }
+            }
+        });
+    }
+    function deleteRole() {
+        var rId = $('#rId').val();
+        var requestBody = {"token":localStorage.getItem("token"), "rId":rId};
+        $.ajax({
+            type: "post",
+            headers: {
+                'Access-Token': localStorage.getItem("token")
+            },
+            url: "http://localhost:5050/apis/system/role/delete",
+            dataType: "json",
+            contentType: "application/json",
+            data: JSON.stringify(requestBody),
+            success: function (jsonmsg) {
+                if (jsonmsg.code == 200) {
+                    document.location.reload();
+                }
+                else{
+                    alert(jsonmsg.msg);
+                }
+            },
+            error: function (jsonmsg) {
+                console.log(jsonmsg);
+                if (jsonmsg.responseJSON.code == 403){
+                    document.location.href = './403.html';
+                }
+                else if (jsonmsg.responseJSON.code == 401){
+                    document.location.href = './login.html';
+                }
+                else{
+                    alert(jsonmsg.responseJSON.msg);
+                }
+            }
+        });
+    }
+    function grantPermission() {
+        var rId = $('#rId2').val();
+        var pCode = $('#pCode').val();
+        requestBody = {"rId":rId, "pCodes":[pCode],"token":localStorage.getItem('token')};
+        $.ajax({
+            type: "post",
+            headers: {
+                'Access-Token': localStorage.getItem("token")
+            },
+            url: "http://localhost:5050/apis/system/role/grant",
+            dataType: "json",
+            contentType: "application/json",
+            data: JSON.stringify(requestBody),
+            success: function (jsonmsg) {
+                if (jsonmsg.code == 200) {
+                    alert(jsonmsg.msg);
+                }
+                else{
+                    alert(jsonmsg.msg);
+                }
+            },
+            error: function (jsonmsg) {
+                console.log(jsonmsg);
+                if (jsonmsg.responseJSON.code == 403){
+                    document.location.href = './403.html';
+                }
+                else if (jsonmsg.responseJSON.code == 401){
+                    document.location.href = './login.html';
+                }
+                else{
+                    alert(jsonmsg.responseJSON.msg);
+                }
+            }
+        })
+    }
+    function dropPermission() {
+        var rId = $('#rId4').val();
+        var pCode = $('#pCode4').val();
+        requestBody = {"rId":rId, "pCodes":[pCode],"token":localStorage.getItem('token')};
+        $.ajax({
+            type: "post",
+            headers: {
+                'Access-Token': localStorage.getItem("token")
+            },
+            url: "http://localhost:5050/apis/system/role/drop",
+            dataType: "json",
+            contentType: "application/json",
+            data: JSON.stringify(requestBody),
+            success: function (jsonmsg) {
+                if (jsonmsg.code == 200) {
+                    alert(jsonmsg.msg);
+                }
+                else{
+                    alert(jsonmsg.msg);
+                }
+            },
+            error: function (jsonmsg) {
+                console.log(jsonmsg);
+                if (jsonmsg.responseJSON.code == 403){
+                    document.location.href = './403.html';
+                }
+                else if (jsonmsg.responseJSON.code == 401){
+                    document.location.href = './login.html';
+                }
+                else{
+                    alert(jsonmsg.responseJSON.msg);
+                }
+            }
+        })
+    }
 </script>
 </html>

@@ -8,13 +8,46 @@
     <title>User-Manage</title>
 
     <link rel="stylesheet" type="text/css" href="./dist/semantic.css">
-
+    <style>
+        #box1,#box2{
+            visibility: hidden;
+        }
+    </style>
 </head>
 <body id="home">
 <table class="ui celled striped table">
-    <thead><tr><th colspan="4">用户列表</th></tr></thead>
+    <thead><tr><th colspan="5">用户列表</th></tr></thead>
     <tbody id="user-append"></tbody>
 </table>
+<button onclick="showbox(1)">赋角色</button>
+<button onclick="showbox(2)">去角色</button>
+
+<div class="ui fluid form segment" id="box1">
+    <div class="two fields">
+        <div class="field">
+            <label>uId:</label>
+            <input id="uId" placeholder="uId:" type="text">
+        </div>
+        <div class="field">
+            <label>rCode:</label>
+            <input id="rCode" placeholder="rCode:" type="text">
+        </div>
+    </div>
+    <div class="ui submit button" onclick="grantRole()">Submit</div>
+</div>
+<div class="ui fluid form segment" id="box2">
+    <div class="two fields">
+        <div class="field">
+            <label>uId:</label>
+            <input id="uId2" placeholder="uId:" type="text">
+        </div>
+        <div class="field">
+            <label>rCode:</label>
+            <input id="rCode2" placeholder="rCode:" type="text">
+        </div>
+    </div>
+    <div class="ui submit button" onclick="dropRole()">Submit</div>
+</div>
 </body>
 <script src="./js/jquery-3.4.1.min.js"></script>
 <script src="./dist/semantic.js"></script>
@@ -38,11 +71,18 @@
         success: function (jsonmsg) {
             if (jsonmsg.code == 200) {
                 var users = jsonmsg.data;
-                var ss = "";
+                var ss = '<tr>\n' +
+                    '<td>id</td>' +
+                    '<td>用户级别</td>' +
+                    '<td>用户名</td>' +
+                    '<td>生日</td>' +
+                    '<td class=\"right aligned collapsing\">性别</td>' +
+                    '</tr>';
                 for (var id in users){
                     ss +=
                         '<tr>\n' +
                         '<td>' + users[id].uId + '</td>' +
+                        '<td>' + users[id].uRank + '</td>' +
                         '<td>' + users[id].userName + '</td>' +
                         '<td>' + users[id].birthday + '</td>' +
                         '<td class=\"right aligned collapsing\">' + (users[id].sex==null?"null":(users[id].sex==1?"男":"女")) + '</td>' +
@@ -64,5 +104,82 @@
             }
         }
     });
+
+    function showbox(id) {
+        var fid = '#box' + id;
+        $(fid).css("visibility", "visible")
+    }
+
+    function grantRole() {
+        var uId = $('#uId').val();
+        var roleCode = $('#rCode').val();
+        requestBody = {"uId":uId, "rCodes":[roleCode],"token":localStorage.getItem('token')};
+        $.ajax({
+            type: "post",
+            headers: {
+                'Access-Token': localStorage.getItem("token")
+            },
+                url: "http://localhost:5050/apis/users/grant",
+            dataType: "json",
+            contentType: "application/json",
+            data: JSON.stringify(requestBody),
+            success: function (jsonmsg) {
+                if (jsonmsg.code == 200) {
+                    alert(jsonmsg.msg);
+                }
+                else{
+                    alert(jsonmsg.msg);
+                }
+            },
+            error: function (jsonmsg) {
+                console.log(jsonmsg);
+                if (jsonmsg.responseJSON.code == 403){
+                    document.location.href = './403.html';
+                }
+                else if (jsonmsg.responseJSON.code == 401){
+                    document.location.href = './login.html';
+                }
+                else{
+                    alert(jsonmsg.responseJSON.msg);
+                }
+            }
+    })
+    }
+
+    function dropRole() {
+        var uId = $('#uId2').val();
+        var roleCode = $('#rCode2').val();
+        requestBody = {"uId":uId, "rCodes":[roleCode],"token":localStorage.getItem('token')};
+        $.ajax({
+            type: "post",
+            headers: {
+                'Access-Token': localStorage.getItem("token")
+            },
+            url: "http://localhost:5050/apis/users/drop",
+            dataType: "json",
+            contentType: "application/json",
+            data: JSON.stringify(requestBody),
+            success: function (jsonmsg) {
+                if (jsonmsg.code == 200) {
+                    alert(jsonmsg.msg);
+                }
+                else{
+                    alert(jsonmsg.msg);
+                }
+            },
+            error: function (jsonmsg) {
+                console.log(jsonmsg);
+                if (jsonmsg.responseJSON.code == 403){
+                    document.location.href = './403.html';
+                }
+                else if (jsonmsg.responseJSON.code == 401){
+                    document.location.href = './login.html';
+                }
+                else{
+                    alert(jsonmsg.responseJSON.msg);
+                }
+            }
+        })
+    }
 </script>
 </html>

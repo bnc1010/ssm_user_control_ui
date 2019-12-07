@@ -53,11 +53,9 @@
 </body>
 <script src="./js/jquery-3.4.1.min.js"></script>
 <script src="./dist/semantic.js"></script>
-
 <script>
     var requestBody = {"token":localStorage.getItem("token")};
     var permission_list = $('#permission-append');
-
     $.ajax({
         type: "post",
         headers: {
@@ -70,6 +68,7 @@
         success: function (jsonmsg) {
             if (jsonmsg.code == 200) {
                 var permissions = jsonmsg.data;
+
                 var ss = "";
                 for (var id in permissions){
                     ss +=

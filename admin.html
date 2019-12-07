@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>User-Manage</title>
+    <link rel="stylesheet" type="text/css" href="./dist/semantic.css">
     <style>
         html,body{
             width: 100%;
@@ -12,7 +17,16 @@
 </head>
 <body>
 <p>这是管理员界面</p>
-
+<div class="ui tabular menu">
+    <div class="item" data-tab="tab-name">Tab Name</div>
+    <div class="item" data-tab="tab-name2">Tab Name 2</div>
+</div>
+<div class="ui tab" data-tab="tab-name">
+    <!-- Tab Content !-->
+</div>
+<div class="ui tab" data-tab="tab-name2">
+    <!-- Tab Content !-->
+</div>
 <iframe id="content-frame" src="" width="75%" height="75%"></iframe><br/>
 <button onclick="changeFrameUrl('userList.html');">用户列表</button>
 <button onclick="changeFrameUrl('roleList.html');">角色列表</button>
@@ -20,7 +34,19 @@
 <button ><a href="./home.html">返回</a></button>
 </body>
 <script src="./js/jquery-3.4.1.min.js"></script>
+<script src="./js/jquery.address.min.js"></script>
+<script src="./dist/semantic.js"></script>
 <script>
+
+    $('.ui.menu .item')
+        .tab({
+            history: true,
+            historyType: 'state',
+            path: 'userManage/userList.html'
+        })
+    ;
+
+
     var frameUrl = "";
     var requestBody = {"userName":null, "password":null};
     $.ajax({
